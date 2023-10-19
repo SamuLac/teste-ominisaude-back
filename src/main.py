@@ -1,6 +1,6 @@
 import requests
 import json
-from tkinter import messagebox, Tk, Label, Entry, Button, Toplevel
+from tkinter import messagebox, Tk, Label, Entry, Button, Toplevel, Listbox, END
 from classes.movie import Movie
 
 
@@ -11,6 +11,21 @@ def request_data(name):
     data = json.loads(request.content)
     return data
 
+def list_favorite():
+    favorite_window = Toplevel()
+    favorite_window.title("Lista de Favoritos")
+    favorite_window.config(padx=10, pady=10)
+    favorite_window.geometry("600x400")
+
+    json_file = open("favorites.json", "r")
+    favorite_list = json.load(json_file)
+    json_file.close()
+    print(len(favorite_list['Movies']))
+    list_box = Listbox(favorite_window,height=len(favorite_list['Movies']))
+    list_box.grid(row=0,column=0)
+
+    for favorite in favorite_list["Movies"]:
+        list_box.insert(END,favorite.get("Title"))
 
 def add_favorite(movie):
     if messagebox.askyesno("Favoritar", "Deseja mesmo favoritar esse filme?"):
@@ -120,7 +135,7 @@ if __name__ == "__main__":
     favorite_label = Label(text="Filmes Favoritos:")
     favorite_label.grid(row=80, column=0, pady=20)
 
-    list_favorite_button = Button(text="Listar", width=20)
+    list_favorite_button = Button(text="Listar", width=20, command=list_favorite)
     list_favorite_button.grid(row=80, column=1, pady=20)
 
     window.mainloop()
