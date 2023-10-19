@@ -1,6 +1,6 @@
 import requests
 import json
-from tkinter import *
+from tkinter import messagebox, Tk, Label, Entry, Button, Toplevel
 from classes.movie import Movie
 
 
@@ -12,51 +12,70 @@ def request_data(name):
     return data
 
 
+def add_favorite(movie):
+    if messagebox.askyesno("Favoritar", "Deseja mesmo favoritar esse filme?"):
+      json_file = open("favorites.json", "r")
+      favorite_list = json.load(json_file)
+      json_file.close()
+      favorite_list["Movies"].append(
+        {
+            "Title": movie.getTitle(),
+            "Year": movie.getYear(),
+            "Rated": movie.getRating(),
+            "Plot": movie.getPlot(),
+            "Director": movie.getDirector(),
+        }
+      )
+      json_file = open("favorites.json", "w")
+      json.dump(favorite_list, json_file)
+      json_file.close()
+
+
 def search_movie():
     name = movie_entry.get()
-    response = request_data(name)
-    movie = Movie(
-        response["Title"],
-        response["Year"],
-        response["Rated"],
-        response["Plot"],
-        response["Director"],
-    )
-    movie_window = Toplevel()
-    movie_window.title(movie.getTitle())
-    movie_window.config(padx=10, pady=10)
-    movie_window.geometry("1280x720")
+    if len(name) == 0:
+        messagebox.showerror(title="Erro!", message="Por favor insira um título válido")
+    else:
+        response = request_data(name)
+        movie = Movie(
+            response["Title"],
+            response["Year"],
+            response["Rated"],
+            response["Plot"],
+            response["Director"],
+        )
+        movie_window = Toplevel()
+        movie_window.title(movie.getTitle())
+        movie_window.config(padx=10, pady=10)
+        movie_window.geometry("1280x720")
 
-    title_label = Label(
-        movie_window, text=f"Título: {movie.getTitle()}", justify=CENTER
-    )
-    title_label.grid(row=2, column=0)
+        title_label = Label(movie_window, text=f"Título: {movie.getTitle()}")
+        title_label.grid(row=2, column=0)
 
-    year_label = Label(
-        movie_window, text=f"Ano de lançamento: {movie.getYear()}", justify=CENTER
-    )
-    year_label.grid(row=4, column=0)
+        year_label = Label(movie_window, text=f"Ano de lançamento: {movie.getYear()}")
+        year_label.grid(row=4, column=0)
 
-    rating_label = Label(
-        movie_window, text=f"Classificação: {movie.getRating()}", justify=CENTER
-    )
-    rating_label.grid(row=6, column=0)
+        rating_label = Label(movie_window, text=f"Classificação: {movie.getRating()}")
+        rating_label.grid(row=6, column=0)
 
-    plot_label = Label(movie_window, text=f"Sinopse: {movie.getPlot()}", justify=CENTER)
-    plot_label.grid(row=8, column=0)
+        plot_label = Label(movie_window, text=f"Sinopse: {movie.getPlot()}")
+        plot_label.grid(row=8, column=0)
 
-    director_label = Label(
-        movie_window, text=f"Diretor(es): {movie.getDirector()}", justify=CENTER
-    )
-    director_label.grid(row=10, column=0)
+        director_label = Label(movie_window, text=f"Diretor(es): {movie.getDirector()}")
+        director_label.grid(row=10, column=0)
 
-    favorite_button = Button(movie_window, text="Favoritar", width=15)
-    favorite_button.grid(row=12, column=0, pady=10)
+        favorite_button = Button(
+            movie_window,
+            text="Favoritar",
+            width=15,
+            command=lambda: add_favorite(movie),
+        )
+        favorite_button.grid(row=12, column=0, pady=10)
 
-    exit_button = Button(
-        movie_window, text="Fechar", width=15, command=movie_window.destroy
-    )
-    exit_button.grid(row=14, column=0, pady=10)
+        exit_button = Button(
+            movie_window, text="Fechar", width=15, command=movie_window.destroy
+        )
+        exit_button.grid(row=14, column=0, pady=10)
 
 
 if __name__ == "__main__":
