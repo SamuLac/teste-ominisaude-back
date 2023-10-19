@@ -11,6 +11,7 @@ def request_data(name):
     data = json.loads(request.content)
     return data
 
+
 def list_favorite():
     favorite_window = Toplevel()
     favorite_window.title("Lista de Favoritos")
@@ -20,12 +21,13 @@ def list_favorite():
     json_file = open("favorites.json", "r")
     favorite_list = json.load(json_file)
     json_file.close()
-    print(len(favorite_list['Movies']))
-    list_box = Listbox(favorite_window,height=len(favorite_list['Movies']))
-    list_box.grid(row=0,column=0)
+    print(len(favorite_list["Movies"]))
+    list_box = Listbox(favorite_window, height=len(favorite_list["Movies"]))
+    list_box.grid(row=0, column=0)
 
     for favorite in favorite_list["Movies"]:
-        list_box.insert(END,favorite.get("Title"))
+        list_box.insert(END, favorite.get("Title"))
+
 
 def add_favorite(movie):
     if messagebox.askyesno("Favoritar", "Deseja mesmo favoritar esse filme?"):
@@ -47,13 +49,13 @@ def add_favorite(movie):
             json_file.close()
             messagebox.showinfo("Sucesso", "O filme foi adicionado com sucesso")
         else:
-            itsFavorite = False
+            isFavorite = False
             for i in range(len(favorite_list["Movies"])):
                 if favorite_list["Movies"][i].get("Title") == movie.getTitle():
                     messagebox.showerror("Erro!", "Esse filme já é favorito")
                     itsFavorite = True
 
-            if not itsFavorite:
+            if not isFavorite:
                 favorite_list["Movies"].append(
                     {
                         "Title": movie.getTitle(),
@@ -67,6 +69,34 @@ def add_favorite(movie):
                 json.dump(favorite_list, json_file)
                 json_file.close()
                 messagebox.showinfo("Sucesso", "O filme foi adicionado com sucesso")
+
+
+def remove_favorite(movie):
+    isFavorite = False
+    json_file = open("favorites.json", "r")
+    favorite_list = json.load(json_file)
+    json_file.close()
+
+    for i in range(len(favorite_list["Movies"])):
+        if favorite_list["Movies"][i].get("Title") == movie.getTitle():
+            isFavorite = True
+    if(isFavorite):
+        index = favorite_list["Movies"].index(
+                {
+                    "Title": movie.getTitle(),
+                    "Year": movie.getYear(),
+                    "Rated": movie.getRating(),
+                    "Plot": movie.getPlot(),
+                    "Director": movie.getDirector(),
+                }
+            )
+        favorite_list["Movies"].pop(index)
+        json_file = open("favorites.json", "w")
+        json.dump(favorite_list, json_file)
+        json_file.close()
+        messagebox.showinfo("Sucesso", "O filme foi removido com sucesso")
+    else:
+        messagebox.showerror("Erro!", "Esse filme não é favorito")
 
 
 def search_movie():
@@ -110,10 +140,18 @@ def search_movie():
         )
         favorite_button.grid(row=12, column=0, pady=10)
 
+        remove_button = Button(
+            movie_window,
+            text="Remover Favorito",
+            width=15,
+            command=lambda: remove_favorite(movie),
+        )
+        remove_button.grid(row=14, column=0, pady=10)
+
         exit_button = Button(
             movie_window, text="Fechar", width=15, command=movie_window.destroy
         )
-        exit_button.grid(row=14, column=0, pady=10)
+        exit_button.grid(row=16, column=0, pady=10)
 
 
 if __name__ == "__main__":
