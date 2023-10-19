@@ -14,27 +14,50 @@ def request_data(name):
 
 def add_favorite(movie):
     if messagebox.askyesno("Favoritar", "Deseja mesmo favoritar esse filme?"):
-      json_file = open("favorites.json", "r")
-      favorite_list = json.load(json_file)
-      json_file.close()
-      favorite_list["Movies"].append(
-        {
-            "Title": movie.getTitle(),
-            "Year": movie.getYear(),
-            "Rated": movie.getRating(),
-            "Plot": movie.getPlot(),
-            "Director": movie.getDirector(),
-        }
-      )
-      json_file = open("favorites.json", "w")
-      json.dump(favorite_list, json_file)
-      json_file.close()
+        json_file = open("favorites.json", "r")
+        favorite_list = json.load(json_file)
+        json_file.close()
+        if len(favorite_list["Movies"]) == 0:
+            favorite_list["Movies"].append(
+                {
+                    "Title": movie.getTitle(),
+                    "Year": movie.getYear(),
+                    "Rated": movie.getRating(),
+                    "Plot": movie.getPlot(),
+                    "Director": movie.getDirector(),
+                }
+            )
+            json_file = open("favorites.json", "w")
+            json.dump(favorite_list, json_file)
+            json_file.close()
+            messagebox.showinfo("Sucesso", "O filme foi adicionado com sucesso")
+        else:
+            itsFavorite = False
+            for i in range(len(favorite_list["Movies"])):
+                if favorite_list["Movies"][i].get("Title") == movie.getTitle():
+                    messagebox.showerror("Erro!", "Esse filme já é favorito")
+                    itsFavorite = True
+
+            if not itsFavorite:
+                favorite_list["Movies"].append(
+                    {
+                        "Title": movie.getTitle(),
+                        "Year": movie.getYear(),
+                        "Rated": movie.getRating(),
+                        "Plot": movie.getPlot(),
+                        "Director": movie.getDirector(),
+                    }
+                )
+                json_file = open("favorites.json", "w")
+                json.dump(favorite_list, json_file)
+                json_file.close()
+                messagebox.showinfo("Sucesso", "O filme foi adicionado com sucesso")
 
 
 def search_movie():
     name = movie_entry.get()
     if len(name) == 0:
-        messagebox.showerror(title="Erro!", message="Por favor insira um título válido")
+        messagebox.showerror("Erro!", "Por favor insira um título válido")
     else:
         response = request_data(name)
         movie = Movie(
